@@ -11,11 +11,11 @@ import java.util.List;
 public class ReadCSV {
     private final static String COMMA_DELIMITER = ",";
 
-    private List<List<String>> airports;
+    private final List<List<String>> airports;
     private final FileReader reader;
 
     public ReadCSV() throws FileNotFoundException {
-        reader = new FileReader("C:\\Users\\denla\\Рабочий стол\\airports.csv");
+        reader = new FileReader("src/main/resources/airports.csv");
         airports = new ArrayList<>();
     }
 
