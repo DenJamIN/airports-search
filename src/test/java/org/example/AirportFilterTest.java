@@ -68,5 +68,22 @@ public class AirportFilterTest {
         assertThat(actual2, is(true));
     }
 
+    @Test
+    public void switchByLogical(){
+        AirportFilter conjunction = new AirportFilter("column[1]>10&column[5]='GKA'");
+        AirportFilter disjunction = new AirportFilter("column[1]>10||column[5]='GKA'");
+        AirportFilter combo = new AirportFilter("column[1]>10&column[5]='GKA'||column[1]=1");
+        AirportFilter one = new AirportFilter("column[1]>10");
+
+        boolean conjunctionActual = conjunction.switchByLogical(airports.get(0), conjunction.getFilter());
+        boolean disjunctionActual = disjunction.switchByLogical(airports.get(0), disjunction.getFilter());
+        boolean comboActual = combo.switchByLogical(airports.get(0), combo.getFilter());
+        boolean oneActual = one.switchByLogical(airports.get(0), one.getFilter());
+
+        assertThat(conjunctionActual, is(false));
+        assertThat(disjunctionActual, is(true));
+        assertThat(comboActual, is(true));
+        assertThat(oneActual, is(false));
+    }
 
 }
