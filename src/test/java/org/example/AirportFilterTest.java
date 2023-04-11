@@ -4,85 +4,102 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class AirportFilterTest {
     List<List<String>> airports;
+    AirportFilter conjunction;
+    AirportFilter disjunction;
+    AirportFilter combo;
+    AirportFilter one;
 
     @Before
     public void init() throws IOException {
         ReadCSV readCSV = new ReadCSV();
         airports = readCSV.read();
+
+        conjunction = new AirportFilter("column[1]>10&column[5]='GKA'");
+        disjunction = new AirportFilter("column[1]>10||column[5]='GKA'");
+        combo = new AirportFilter("column[1]>10&column[5]='GKA'||column[1]=10");
+        one = new AirportFilter("column[1]>10");
     }
 
     @Test
-    public void splitFilterByExpressions() {
-        AirportFilter conjunction = new AirportFilter("column[1]>10&column[5]='GKA'");
-        AirportFilter disjunction = new AirportFilter("column[1]>10||column[5]='GKA'");
-        AirportFilter combo = new AirportFilter("column[1]>10&column[5]='GKA'||column[1]=10");
-        AirportFilter one = new AirportFilter("column[1]>10");
+    public void splitByExpressions() {
+        List<String> actual1 = conjunction.splitByExpressions(conjunction.getFilter());
+        List<String> actual2 = disjunction.splitByExpressions(disjunction.getFilter());
+        List<String> actual3 = combo.splitByExpressions(combo.getFilter());
+        List<String> actual4 = one.splitByExpressions(one.getFilter());
 
-        conjunction.splitFilterByExpressions();
-        disjunction.splitFilterByExpressions();
-        combo.splitFilterByExpressions();
-        one.splitFilterByExpressions();
-
-        assertThat(conjunction.getExpressions(), is(Arrays.asList("column[1]>10", "column[5]='GKA'")));
-        assertThat(disjunction.getExpressions(), is(Arrays.asList("column[1]>10", "column[5]='GKA'")));
-        assertThat(combo.getExpressions(), is(Arrays.asList("column[1]>10", "column[5]='GKA'", "column[1]=10")));
-        assertThat(one.getExpressions(), is(Arrays.asList("column[1]>10")));
-
-        assertThat(conjunction.getLogicalOperators(), is(Arrays.asList("&")));
-        assertThat(disjunction.getLogicalOperators(), is(Arrays.asList("||")));
-        assertThat(combo.getLogicalOperators(), is(Arrays.asList("&", "||")));
-        assertThat(one.getLogicalOperators(), is(Arrays.asList()));
+        assertThat(actual1, is(asList("column[1]>10", "column[5]='GKA'")));
+        assertThat(actual2, is(asList("column[1]>10", "column[5]='GKA'")));
+        assertThat(actual3, is(asList("column[1]>10", "column[5]='GKA'", "column[1]=10")));
+        assertThat(actual4, is(asList("column[1]>10")));
     }
 
     @Test
-    public void splitExpressionsByComparisonOperators() {
-        AirportFilter many = new AirportFilter("column[1]>10&column[5]='GKA'");
-        AirportFilter one = new AirportFilter("column[1]>10");
+    public void collectLogicalOperatorsList(){
+        List<String> actual1 = conjunction.collectLogicalOperatorsListFrom(conjunction.getFilter());
+        List<String> actual2 = disjunction.collectLogicalOperatorsListFrom(disjunction.getFilter());
+        List<String> actual3 = combo.collectLogicalOperatorsListFrom(combo.getFilter());
+        List<String> actual4 = one.collectLogicalOperatorsListFrom(one.getFilter());
 
-        many.splitFilterByExpressions();
-        one.splitFilterByExpressions();
-
-        assertThat(many.splitExpressionsByComparisonOperators(), is(Arrays.asList(Arrays.asList("column[1]", "10"), Arrays.asList("column[5]", "'GKA'"))));
-        assertThat(one.splitExpressionsByComparisonOperators(), is(Arrays.asList(Arrays.asList("column[1]", "10"))));
+        assertThat(actual1, is(asList("&")));
+        assertThat(actual2, is(asList("||")));
+        assertThat(actual3, is(asList("&", "||")));
+        assertThat(actual4, is(asList()));
     }
 
     @Test
-    public void switchByComparison() {
-        AirportFilter airportFilter = new AirportFilter("column[1]>10&column[5]='GKA'");
+    public void splitByComparisonOperator() {
+        String[] actual1 = one.splitByComparisonOperator("column[1]<10");
+        String[] actual2 = one.splitByComparisonOperator("column[1]>10");
+        String[] actual3 = one.splitByComparisonOperator("column[1]<>10");
+        String[] actual4 = one.splitByComparisonOperator("column[1]=10");
+        String[] actual5 = one.splitByComparisonOperator("column[1]>=10");
+        String[] actual6 = one.splitByComparisonOperator("column[1]<=10");
 
-        airportFilter.splitFilterByExpressions();
+        String[] expected = new String[] {"column[1]", "10"};
 
-        boolean actual1 = airportFilter.switchByComparison(airports.get(0), airportFilter.getExpressions().get(0));
-        boolean actual2 = airportFilter.switchByComparison(airports.get(0), airportFilter.getExpressions().get(1));
-
-        assertThat(actual1, is(false));
-        assertThat(actual2, is(true));
+        assertThat(actual1, is(expected));
+        assertThat(actual2, is(expected));
+        assertThat(actual3, is(expected));
+        assertThat(actual4, is(expected));
+        assertThat(actual5, is(expected));
+        assertThat(actual6, is(expected));
     }
 
     @Test
-    public void switchByLogical(){
-        AirportFilter conjunction = new AirportFilter("column[1]>10&column[5]='GKA'");
-        AirportFilter disjunction = new AirportFilter("column[1]>10||column[5]='GKA'");
-        AirportFilter combo = new AirportFilter("column[1]>10&column[5]='GKA'||column[1]=1");
-        AirportFilter one = new AirportFilter("column[1]>10");
+    public void getComparisonOperator() {
+        String actual1 = one.getComparisonOperator("column[1]<10");
+        String actual2 = one.getComparisonOperator("column[1]>10");
+        String actual3 = one.getComparisonOperator("column[1]<>10");
+        String actual4 = one.getComparisonOperator("column[1]=10");
+        String actual5 = one.getComparisonOperator("column[1]>=10");
+        String actual6 = one.getComparisonOperator("column[1]<=10");
 
-        boolean conjunctionActual = conjunction.switchByLogical(airports.get(0), conjunction.getFilter());
-        boolean disjunctionActual = disjunction.switchByLogical(airports.get(0), disjunction.getFilter());
-        boolean comboActual = combo.switchByLogical(airports.get(0), combo.getFilter());
-        boolean oneActual = one.switchByLogical(airports.get(0), one.getFilter());
-
-        assertThat(conjunctionActual, is(false));
-        assertThat(disjunctionActual, is(true));
-        assertThat(comboActual, is(true));
-        assertThat(oneActual, is(false));
+        assertThat(actual1, is("<"));
+        assertThat(actual2, is(">"));
+        assertThat(actual3, is("<>"));
+        assertThat(actual4, is("="));
+        assertThat(actual5, is(">="));
+        assertThat(actual6, is("<="));
     }
 
+    @Test
+    public void substituteValuesFromAirport(){
+        List<String> airport = airports.get(0);
+
+        String actual1 = one.substituteValuesFromAirport("column[1]", airport);
+        String actual2 = one.substituteValuesFromAirport("10", airport);
+        String actual3 = one.substituteValuesFromAirport("'GKA'", airport);
+
+        assertThat(actual1, is(airport.get(0)));
+        assertThat(actual2, is("10"));
+        assertThat(actual3, is("GKA"));
+    }
 }
