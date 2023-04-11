@@ -9,8 +9,7 @@
   <version>1.0-SNAPSHOT</version>
 
   <name>renyu</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  <url>https://t.me/denjamiin</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -50,6 +49,13 @@
         </plugin>
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
+          <configuration>
+            <archive>
+              <manifest>
+                <mainClass>org.example.App</mainClass>
+              </manifest>
+            </archive>
+          </configuration>
           <version>3.0.2</version>
         </plugin>
         <plugin>
