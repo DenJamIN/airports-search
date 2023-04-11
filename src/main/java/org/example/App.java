@@ -1,29 +1,40 @@
 package org.example;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class App {
     public static void main(String[] args) throws IOException {
-        ReadCSV readCSV = new ReadCSV();
-
         Scanner scanner = new Scanner(System.in);
+        ReadCSV readCSV = new ReadCSV();
+        List<List<String>> airports = new ArrayList<>();
+
+        System.out.println("Введите фильтр:");
         String filter = scanner.nextLine();
-        String search = scanner.nextLine();
 
-        long start = System.currentTimeMillis();
+        if(!filter.trim().isEmpty()){
+            AirportFilter airportFilter = new AirportFilter(filter);
+            airports = airportFilter.filter(readCSV.read());
+        }
 
-        AirportFilter airportFilter = new AirportFilter(filter);
-        List<List<String>> airportsFiltered = airportFilter.filter(readCSV.read());
+        while(true) {
+            System.out.println("Введите строку для поиска (или введие '!quit'):");
+            String search = scanner.nextLine();
 
-        SearchAirports searchAirports = new SearchAirports(airportsFiltered, search);
-        List<List<String>> founded = searchAirports.search();
-        long finish = System.currentTimeMillis();
-        long elapsed = finish - start;
+            if (search.contains("!quit")) break;
 
-        searchAirports.print(founded);
-        System.out.println("Количество найденных строк: " + founded.size());
-        System.out.println("Время, затраченное на поиск: " + elapsed);
+            SearchAirports searchAirports = new SearchAirports(airports, search);
+
+            long start = System.currentTimeMillis();
+            List<List<String>> founded = searchAirports.search();
+            long finish = System.currentTimeMillis();
+            long elapsed = finish - start;
+
+            searchAirports.print(founded);
+            System.out.println("Количество найденных строк: " + founded.size());
+            System.out.println("Время, затраченное на поиск: " + elapsed);
+        }
     }
 }
