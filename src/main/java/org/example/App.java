@@ -1,7 +1,6 @@
 package org.example;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -9,14 +8,14 @@ public class App {
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
         ReadCSV readCSV = new ReadCSV();
-        List<List<String>> airports = new ArrayList<>();
+        List<List<String>> airports = readCSV.read();
 
         System.out.println("Введите фильтр:");
         String filter = scanner.nextLine();
 
         if(!filter.trim().isEmpty()){
             AirportFilter airportFilter = new AirportFilter(filter);
-            airports = airportFilter.filter(readCSV.read());
+            airports = airportFilter.filter(airports);
         }
 
         while(true) {
