@@ -29,11 +29,4 @@ public class ReadCSV {
         }
         return airports;
     }
-
-    public void print(List<List<String>> airports){
-        airports.forEach((airport) -> {
-            airport.forEach((data) -> System.out.print(data + ", "));
-            System.out.println();
-        });
-    }
 }
