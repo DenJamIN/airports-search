@@ -16,7 +16,7 @@ public class ReadCSV {
 
     public ReadCSV() throws FileNotFoundException {
         //TODO нужный путь
-        reader = new FileReader("C:/Users/Stels/Downloads/airports.csv");//"src/main/resources/airports.csv"
+        reader = new FileReader("C:/Users/Stels/Downloads/airports.csv");
         airports = new ArrayList<>();
     }
 
